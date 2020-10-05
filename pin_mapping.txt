@@ -1,0 +1,17 @@
+12	relais_1
+11	relais_2
+13	relais_3
+15	relais_4
+16	relais_5
+18	relais_6
+19	relais_7
+21	relais_8
+22	1_wire_thermometre
+23	moteur_en_not
+24	moteur_dir
+26	moteur_step
+29	interrupteur_eau_lait
+31	pompe_manuelle
+32	bypass_vidange
+33	commande_lait
+35	reserve_interrupteur
