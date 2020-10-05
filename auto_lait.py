@@ -27,6 +27,7 @@ moteur_dir = DigitalOutputDevice('J8:24')
 moteur_step = DigitalOutputDevice('J8:26')
 
 running = True
+rincage_fait = False
 
 relais = [relais_1, relais_2, relais_3, relais_4, relais_5, relais_6, relais_7, relais_8]
 for r in relais:
@@ -98,7 +99,7 @@ duree_bypass_vide = 0.6
 duree_entre_videbypass = 10
 duree_rincage_eau = 5
 
-duree_attente_tirage = 15
+duree_attente_tirage = 60
 
 def vidage_circuit(circuit):
     bypass.on()
@@ -143,9 +144,11 @@ class Veille(State):
     def update(self):
         if commande_lait():
             return Preparation()
-        if commande_rincage():
+        if commande_rincage() and not rincage_fait:
+            rincage_fait = True
             return Rincage()
-        if time.time() - self.enter_time > 3600:
+        if time.time() - self.enter_time > 3600 and not rincage_fait:
+            rincage_fait = True
             return Rincage()
         else:
             return self
@@ -174,6 +177,8 @@ class Preparation(State):
         bypass.off()
         pompe.on()
         time.sleep(1)
+        
+        rincage_fait = False
     
     def update(self):
         if commande_lait():
