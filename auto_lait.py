@@ -142,6 +142,7 @@ class Veille(State):
             r.off()
     
     def update(self):
+        global rincage_fait
         if commande_lait():
             return Preparation()
         if commande_rincage() and not rincage_fait:
@@ -178,6 +179,7 @@ class Preparation(State):
         pompe.on()
         time.sleep(1)
         
+        global rincage_fait
         rincage_fait = False
     
     def update(self):
