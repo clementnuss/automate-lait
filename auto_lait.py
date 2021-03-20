@@ -7,7 +7,24 @@ import datetime
 from gpiozero import DigitalOutputDevice, Button
 import signal
 
-pompe = relais_1 = DigitalOutputDevice('J8:21')
+class Multirelay():
+    
+    def __init__(self):    
+        self.relays = []
+    
+    def add_relay(self, relay):
+        self.relays.append(relay)
+    
+    def on(self):
+        for r in self.relays:
+            r.on()
+            
+    def off(self):
+        for r in self.relays:
+            r.off()
+            
+                    
+relais_1 = DigitalOutputDevice('J8:21')
 relais_2 = DigitalOutputDevice('J8:19')
 relais_3 = DigitalOutputDevice('J8:18')
 eau_sale = relais_4 = DigitalOutputDevice('J8:16')
@@ -15,6 +32,20 @@ eau_propre = relais_5 = DigitalOutputDevice('J8:15')
 bypass = relais_6 = DigitalOutputDevice('J8:13')
 lait = relais_7 = DigitalOutputDevice('J8:11')
 eau = relais_8 = DigitalOutputDevice('J8:12')
+
+pompe = Multirelay()
+pompe.add_relay(relais_1)
+pompe.add_relay(relais_2)
+
+vannes = Multirelay()
+vannes.add_relay(relais_4)
+vannes.add_relay(relais_5)
+vannes.add_relay(relais_6)
+
+vannes.on()
+time.sleep(0.15)
+vannes.off()
+
 
 int_eau_lait = Button('J8:29')
 int_pompe = Button('J8:31')
