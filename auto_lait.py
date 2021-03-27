@@ -24,28 +24,14 @@ class Multirelay():
             r.off()
             
                     
-relais_1 = DigitalOutputDevice('J8:21')
-relais_2 = DigitalOutputDevice('J8:19')
+controleur_moteur = relais_1 = DigitalOutputDevice('J8:21')
+pompe = relais_2 = DigitalOutputDevice('J8:19')
 relais_3 = DigitalOutputDevice('J8:18')
-eau_sale = relais_4 = DigitalOutputDevice('J8:16')
-eau_propre = relais_5 = DigitalOutputDevice('J8:15')
-bypass = relais_6 = DigitalOutputDevice('J8:13')
-lait = relais_7 = DigitalOutputDevice('J8:11')
-eau = relais_8 = DigitalOutputDevice('J8:12')
-
-pompe = Multirelay()
-pompe.add_relay(relais_1)
-pompe.add_relay(relais_2)
-
-vannes = Multirelay()
-vannes.add_relay(relais_4)
-vannes.add_relay(relais_5)
-vannes.add_relay(relais_6)
-
-vannes.on()
-time.sleep(0.15)
-vannes.off()
-
+relais_4 = DigitalOutputDevice('J8:16')
+relais_5 = DigitalOutputDevice('J8:15')
+relais_6 = DigitalOutputDevice('J8:13')
+relais_7 = DigitalOutputDevice('J8:11')
+relais_8 = DigitalOutputDevice('J8:12')
 
 int_eau_lait = Button('J8:29')
 int_pompe = Button('J8:31')
@@ -58,23 +44,15 @@ moteur_dir = DigitalOutputDevice('J8:24')
 moteur_step = DigitalOutputDevice('J8:26')
 
 running = True
-rincage_fait = False
 
 relais = [relais_1, relais_2, relais_3, relais_4, relais_5, relais_6, relais_7, relais_8]
 for r in relais:
     r.off()
     
-vannes = [relais_4, relais_5, relais_6, relais_7, relais_8]
 
-for r in vannes:
-    r.on()
-    time.sleep(0.05)
-    
+controleur_moteur.on()
 time.sleep(0.2)
-
-for r in vannes:
-    r.off()
-    time.sleep(0.05)
+controleur_moteur.off()
 
 class State(object):
     """
@@ -124,117 +102,32 @@ class AutomateLait():
 
 ############# CONSTANTES #############
 
-duree_vidange_circuit = 10
-duree_descente_eau = 10
-duree_bypass_vide = 0.6
-duree_entre_videbypass = 10
-duree_rincage_eau = 5
 
-duree_attente_tirage = 60
-
-def vidage_circuit(circuit):
-    bypass.on()
-    
-    if (circuit == 'lait'):
-        lait.on()
-    elif (circuit == 'eau'):
-        eau.on()
-        eau_sale.on()
-        time.sleep(6)
-
-    pompe.on()
-    time.sleep(duree_bypass_vide)
-    pompe.off()
-    time.sleep(duree_entre_videbypass)
-
-    pompe.on()
-    time.sleep(duree_bypass_vide)
-    pompe.off()
-    time.sleep(duree_entre_videbypass)
-
-    pompe.on()
-    time.sleep(duree_bypass_vide)
-    pompe.off()
-
-    time.sleep(duree_vidange_circuit)
-
-    if (circuit == 'lait'):
-        lait.off()
-    elif (circuit == 'eau'):
-        eau.off()
-        eau_sale.off()
-    
-    bypass.off()
 
 class Veille(State):
     def on_enter(self):
-        print("arrêt des relais")
-        for r in relais:
-            r.off()
+        pass
     
     def update(self):
         global rincage_fait
-        if commande_lait():
-            return Preparation()
-        if commande_rincage() and not rincage_fait:
-            rincage_fait = True
-            return Rincage()
-        if time.time() - self.enter_time > 3600 and not rincage_fait:
-            rincage_fait = True
-            return Rincage()
-        else:
-            return self
-        
-class Rincage(State):
-    
-    def update(self):
-        vidage_circuit('lait')
-        
-        eau.on()
-        eau_propre.on()
-        pompe.on()
-        time.sleep(duree_rincage_eau)
-        pompe.off()
-        eau_propre.off()
-
-        vidage_circuit('eau')
-        
-        return Veille()    
-
-        
-class Preparation(State):
-    def on_enter(self):
-        #tirer du lait jusqu'en haut mais dépasser le point le plus haut (= sans faire couler)
-        lait.on()
-        bypass.off()
-        pompe.on()
-        time.sleep(1)
-        
-        global rincage_fait
-        rincage_fait = False
-    
-    def update(self):
         if commande_lait():
             return Distribution()
         else:
-            return Attente()
-
+            return self
+    
 class Attente(State):
     def on_enter(self):
-        pompe.off()
-        #vidage du coude
-        bypass.on()
-        time.sleep(0.4)
-        bypass.off()
-    
+        pass
+
     def update(self):
-        if time.time() - self.enter_time > duree_attente_tirage:
-            return Vidange()
+        if time.time() - self.enter_time > 100:
+            pass
+
         if commande_lait():
             return Distribution()
         
         return self
-    
+
 class Distribution(State):
     def on_enter(self):
         pompe.on()
@@ -242,18 +135,9 @@ class Distribution(State):
         if commande_lait():
             return self
         else:
-            return Attente()
+            pompe.off()
+            return Veille()
         
-class Vidange(State):
-    def update(self):
-        print('vidange en cours, attendre')
-        bypass.on()
-        time.sleep(duree_vidange_circuit)
-        bypass.off()
-        
-        return Veille()
-
-
 def automate():
     automate = AutomateLait()
     while running:
@@ -267,6 +151,8 @@ def automate():
 
 def brassage_lait():
 
+    controleur_moteur.on()
+
     microstepping = 1
     steps_per_revolution = microstepping * 200
 
@@ -275,13 +161,14 @@ def brassage_lait():
     moteur_en.off()
 
     delay = 1/frequency
-    for x in range(int(15 * rev_per_sec * steps_per_revolution)):
+    for x in range(int(20 * rev_per_sec * steps_per_revolution)):
         moteur_step.on()
         time.sleep(delay)
         moteur_step.off()
         time.sleep(delay)
 
     moteur_en.on()
+    controleur_moteur.off()
 
 def thread_moteur():
     while running:
@@ -294,13 +181,11 @@ def thread_moteur():
         time.sleep(1)
         
     moteur_en.on()
+    controleur_moteur.off()
         
     print('Thread moteur  terminé')
 
 def exit_gracefully(signum, frame):
-    eau_sale.on()
-    time.sleep(0.1)
-    eau_sale.off()
     global running
     running = False
     
@@ -311,7 +196,6 @@ def main_function():
     thr_automate.start()
     thr_moteur.start()
     
-    thr_moteur.join()
     thr_automate.join()
 
 
