@@ -3,7 +3,7 @@ Description=Automate a lait
 After=network.target
 
 [Service]
-ExecStart=python3 -u /home/pi/git_automate_lait/auto_lait.py
+ExecStart=python3 -u /home/pi/git_automate_lait/automate_lait.py
 WorkingDirectory=/home/pi/auto_lait_workingdir/
 Restart=always
 User=pi

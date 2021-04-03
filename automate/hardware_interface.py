@@ -16,11 +16,11 @@ class HardwareInterface():
         print(f"Correctly connected to the pigpio daemon: {self.pi.connected}")
 
         self.pi.set_mode(self.commande_lait, pigpio.INPUT)
-        self.pi.set_pull_up_down(self.commande_lait, pigpio.PUD_DOWN)
+        self.pi.set_pull_up_down(self.commande_lait, pigpio.PUD_OFF)
 
 
     def read_milk_button(self):
-        return self.pi.read(self.commande_lait)
+        return not self.pi.read(self.commande_lait)
 
     def set_pump(self, state: bool):
         self.pi.write(self.pompe, state)
