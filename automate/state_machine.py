@@ -38,19 +38,19 @@ class Veille(State):
         pass
     
     def update(self):
-        if hw_if.commande_lait():
+        if hw_if.read_milk_button():
             return Distribution()
         else:
             return self
 
 class Distribution(State):
     def on_enter(self):
-        hw_if.pompe.on()
+        hw_if.set_pump(1)
     def update(self):
-        if hw_if.commande_lait():
+        if hw_if.read_milk_button():
             return self
         else:
-            hw_if.pompe.off()
+            hw_if.set_pump(0)
             return Veille()
 
 class AutomateLait():
@@ -59,19 +59,3 @@ class AutomateLait():
         
     def update(self):
         self.state = self.state.update()
-    
-# Waiting state. not used anymore currently
-# class Attente(State):
-#     def on_enter(self):
-#         pass
-
-#     def update(self):
-#         if time.time() - self.enter_time > 100:
-#             pass
-
-#         if commande_lait():
-#             return Distribution()
-        
-#         return self
-
-

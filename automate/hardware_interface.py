@@ -1,50 +1,28 @@
 
-from gpiozero import DigitalOutputDevice, Button
+import pigpio
 import time
 
-class HardwareInterface():        
-    controleur_moteur = relais_1 = DigitalOutputDevice('J8:21')
-    pompe = relais_2 = DigitalOutputDevice('J8:19')
-    relais_3 = DigitalOutputDevice('J8:18')
-    relais_4 = DigitalOutputDevice('J8:16')
-    relais_5 = DigitalOutputDevice('J8:15')
-    relais_6 = DigitalOutputDevice('J8:13')
-    relais_7 = DigitalOutputDevice('J8:11')
-    relais_8 = DigitalOutputDevice('J8:12')
+class HardwareInterface():
 
-    int_eau_lait = Button('J8:29')
-    int_pompe = Button('J8:31')
-    int_bypass = Button('J8:32')
-    int_commande_lait = Button('J8:33')
-    int_reserve = Button('J8:35')
+    controleur_moteur = 9
+    pompe = 10
+    commande_lait = 19
+    moteur_en = 11
+    moteur_dir = 8
+    moteur_step = 13
+    
+    def __init__(self):
+        self.pi = pigpio.pi('localhost', 8888)
+        print(f"Correctly connected to the pigpio daemon: {self.pi.connected}")
 
-    moteur_en = DigitalOutputDevice('J8:23')
-    moteur_dir = DigitalOutputDevice('J8:24')
-    moteur_step = DigitalOutputDevice('J8:26')
+        self.pi.set_mode(self.commande_lait, pigpio.INPUT)
+        self.pi.set_pull_up_down(self.commande_lait, pigpio.PUD_DOWN)
 
-    def commande_lait(self):
-        return self.int_commande_lait.is_pressed
-    def commande_rincage(self):
-        return self.int_bypass.is_pressed
 
-    relais = [relais_1, relais_2, relais_3, relais_4, relais_5, relais_6, relais_7, relais_8]
-    for r in relais:
-        r.off()
+    def read_milk_button(self):
+        return self.pi.read(self.commande_lait)
+
+    def set_pump(self, state: bool):
+        self.pi.write(self.pompe, state)
 
 hw_if = HardwareInterface()
-
-# class that emulates the behavior of a relay, but under the hood calls multiple relays.
-class Multirelay(): 
-    def __init__(self):    
-        self.relays = []
-    
-    def add_relay(self, relay):
-        self.relays.append(relay)
-    
-    def on(self):
-        for r in self.relays:
-            r.on()
-            
-    def off(self):
-        for r in self.relays:
-            r.off()           

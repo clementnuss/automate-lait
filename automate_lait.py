@@ -35,14 +35,15 @@ def exit_gracefully(signum, frame):
     global running
     running = False
 
-    hw_if.moteur_en.on()
-    hw_if.controleur_moteur.off()
+    hw_if.pi.hardware_PWM(hw_if.moteur_step, 0,0)
+    hw_if.pi.write(hw_if.moteur_en, 1)
+    hw_if.pi.write(hw_if.controleur_moteur, 0)
 
 def main_function():
     # makes a clicking noise to show the software has started
-    hw_if.controleur_moteur.on()
+    hw_if.pi.write(hw_if.controleur_moteur, 1)
     time.sleep(0.2)
-    hw_if.controleur_moteur.off() 
+    hw_if.pi.write(hw_if.controleur_moteur, 0)
     
     automata_thread = threading.Thread(target=milk_automata_fn)
     mixing_thread = threading.Thread(target=milk_mixing_fn)
