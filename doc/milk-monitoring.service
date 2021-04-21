@@ -1,0 +1,12 @@
+[Unit]
+Description=Milk monitoring service
+After=network.target
+
+[Service]
+ExecStart=python3 -u /home/pi/git_automate_lait/monitoring.py
+WorkingDirectory=/home/pi/auto_lait_workingdir/
+Restart=always
+User=pi
+
+[Install]
+WantedBy=default.target
