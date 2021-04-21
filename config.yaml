@@ -1,0 +1,6 @@
+
+
+# LiDAR Sensor configuration
+lidar:
+  reference_height: 109
+  sensitivity: 0

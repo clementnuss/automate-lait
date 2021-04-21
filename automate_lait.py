@@ -4,8 +4,7 @@
 import time, datetime
 import threading, signal
 
-from threading import Event
-exit = Event()
+exit = threading.Event()
 
 import automate
 hw_if = automate.hardware_interface.hw_if

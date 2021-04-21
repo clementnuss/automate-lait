@@ -3,6 +3,7 @@ import logging
 import threading, time
 
 from sensors import lidar, temperature
+import yaml
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
@@ -15,15 +16,23 @@ if __name__ == '__main__':
     lidar_strength = Gauge(name='lidar_strength', documentation='The strength of the measurement taken by the LiDAR')
     pipe_temperature = Gauge(name='pipe_temperature', documentation='Temperature measured directly on the milk pipe')
 
+    config = {}
+    try: 
+        with open(r"./config.yaml") as file:
+            config = yaml.load(file)
+        logging.debug("Correctly imported the config: ", config)
+    except Exception as e:
+        logging.error(f"Could not import the configuration file ! Error message:\n{e}")
+    
     tfluna_thread = threading.Thread(
         target=lidar.read_tfluna,
-        args= (lidar_distance, lidar_strength))
+        args= (lidar_distance, lidar_strength, config['lidar']))
     logging.info(f"starting the TF-Luna thread.")
     tfluna_thread.start()
 
     temp_thread = threading.Thread(
         target=temperature.read_temperature,
-        args= (pipe_temperature,))
+        args= (pipe_temperature, ))
     logging.info(f"starting the temperature reading thread.")
     temp_thread.start()
 
