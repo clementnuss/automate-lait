@@ -1,1 +1,10 @@
-gpiozero
+
+# RPi interfacing
+pigpio
+
+# sensors
+tfluna-driver
+w1thermsensor
+
+# monitoring
+prometheus_client
