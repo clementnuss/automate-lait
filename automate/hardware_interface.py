@@ -1,6 +1,5 @@
 
 import pigpio
-import time
 
 class HardwareInterface():
 
@@ -10,7 +9,7 @@ class HardwareInterface():
     moteur_en = 11
     moteur_dir = 8
     moteur_step = 13
-    
+
     def __init__(self):
         self.pi = pigpio.pi('localhost', 8888)
         print(f"Correctly connected to the pigpio daemon: {self.pi.connected}")

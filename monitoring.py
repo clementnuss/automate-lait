@@ -14,9 +14,9 @@ if __name__ == '__main__':
     for coll in list(REGISTRY._collector_to_names.keys()):
         REGISTRY.unregister(coll)
     
-    lidar_distance = Gauge(name='lidar_distance', documentation='The distance (m) between the LiDAR (sensor) and the floor.')
+    lidar_distance = Gauge(name='niveau_lait_cm', documentation='The distance (m) between the LiDAR (sensor) and the floor.')
     lidar_strength = Gauge(name='lidar_strength', documentation='The strength of the measurement taken by the LiDAR')
-    pipe_temperature = Gauge(name='pipe_temperature', documentation='Temperature measured directly on the milk pipe')
+    pipe_temperature = Gauge(name='temperature_lait_c', documentation='Temperature measured directly on the milk pipe')
 
     config = {}
     try: 
