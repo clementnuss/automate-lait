@@ -3,15 +3,17 @@ from prometheus_client import Gauge
 
 from w1thermsensor import W1ThermSensor, Unit, SensorNotReadyError
 
-def read_temperature(pipe_temperature: Gauge, running):
+def read_temperature(running):
     sensor = W1ThermSensor()
     if not sensor.exists():
         logging.error("Could not open the temperature sensor (W1 sensor not found)."
             "exiting in a minute")
         time.sleep(6)
         raise Exception("W1 sensor not found")
-    
+
     logging.info("Correctly opened the temperature sensor")
+    pipe_temperature = Gauge(name='temperature_lait_c', documentation='Temperature measured directly on the milk pipe')
+
     while running.get():
         try:
             temperature_in_celsius = sensor.get_temperature()
